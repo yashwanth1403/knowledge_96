@@ -63,11 +63,18 @@ export function Footer() {
               </li>
             </ul>
             <div className="mt-6 flex gap-3">
-              {[Facebook, Instagram, Twitter, Youtube].map((Icon, i) => (
+              {[
+                { Icon: Facebook, href: "https://facebook.com/knowledge96", label: "Facebook" },
+                { Icon: Instagram, href: "https://www.instagram.com/knowledge_96_telugu/", label: "Instagram" },
+                { Icon: Twitter, href: "https://x.com/knowledge96", label: "Twitter" },
+                { Icon: Youtube, href: "https://youtube.com/@knowledge96", label: "Youtube" },
+              ].map(({ Icon, href, label }) => (
                 <a
-                  key={i}
-                  href="#"
-                  aria-label="Social link"
+                  key={label}
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={label}
                   className="grid h-9 w-9 place-items-center rounded-full border border-border text-muted-foreground transition hover:border-accent hover:text-accent"
                 >
                   <Icon className="h-4 w-4" />

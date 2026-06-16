@@ -56,7 +56,7 @@ function SettingsPage() {
         </Section>
 
         <Section title="Social Media Links">
-          <Field label="Instagram"><Input placeholder="https://instagram.com/knowledge_96" /></Field>
+          <Field label="Instagram"><Input defaultValue="https://www.instagram.com/knowledge_96_telugu/" /></Field>
           <Field label="Facebook"><Input placeholder="https://facebook.com/knowledge96" /></Field>
           <Field label="YouTube"><Input placeholder="https://youtube.com/@knowledge96" /></Field>
           <Field label="X / Twitter"><Input placeholder="https://x.com/knowledge96" /></Field>
