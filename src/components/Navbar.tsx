@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useState } from "react";
 import { Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
-import logoAsset from "@/assets/knowledge96-logo.png.asset.json";
+import logoAsset from "@/assets/knowledge96-logo.png";
 
 const links = [
   { to: "/", label: "Home" },
@@ -50,7 +50,7 @@ export function Navbar() {
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6">
           <Link to="/" className="flex items-center gap-2.5 group">
             <img
-              src={logoAsset.url}
+              src={logoAsset}
               alt="Knowledge_96"
               className="h-14 w-auto object-contain"
             />
@@ -115,7 +115,7 @@ export function Navbar() {
             <div className="flex items-center justify-between px-6 py-5">
               <div className="flex items-center gap-2.5">
                 <img
-                  src={logoAsset.url}
+                  src={logoAsset}
                   alt="Knowledge_96"
                   className="h-12 w-auto object-contain"
                 />

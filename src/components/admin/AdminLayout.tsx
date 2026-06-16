@@ -8,7 +8,7 @@ import {
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import logoAsset from "@/assets/knowledge96-logo.png.asset.json";
+import logoAsset from "@/assets/knowledge96-logo.png";
 
 const nav = [
   { to: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -39,7 +39,7 @@ export function AdminLayout({ children, title, actions }: { children: ReactNode;
       <div className="flex h-16 items-center justify-between border-b border-border px-4">
         <Link to="/admin/dashboard" className="flex items-center gap-2 overflow-hidden">
           <img
-            src={logoAsset.url}
+            src={logoAsset}
             alt="Knowledge_96"
             className="h-8 w-auto object-contain shrink-0 rounded-md"
           />
