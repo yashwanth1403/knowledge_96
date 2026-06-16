@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Search, SlidersHorizontal, ChevronLeft, ChevronRight, X, CarFront } from "lucide-react";
 import { Layout } from "@/components/Layout";
 import { CarCard } from "@/components/CarCard";
@@ -75,6 +75,7 @@ export function InventoryPage() {
   const [filters, setFilters] = useState<Filters>(defaultFilters);
   const [page, setPage] = useState(1);
   const [scrolled, setScrolled] = useState(false);
+  const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
 
   useEffect(() => {
     const on = () => setScrolled(window.scrollY > 320);
@@ -82,7 +83,29 @@ export function InventoryPage() {
     return () => window.removeEventListener("scroll", on);
   }, []);
 
+  useEffect(() => {
+    if (isMobileFiltersOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isMobileFiltersOpen]);
+
   useEffect(() => { setPage(1); }, [filters]);
+
+  const activeFiltersCount = useMemo(() => {
+    let count = 0;
+    if (filters.brand !== "All") count++;
+    if (filters.budget !== "All") count++;
+    if (filters.fuel !== "All") count++;
+    if (filters.transmission !== "All") count++;
+    if (filters.year !== "All") count++;
+    if (filters.sort !== "Newest") count++;
+    return count;
+  }, [filters]);
 
   const filtered = useMemo(() => {
     const q = filters.q.trim().toLowerCase();
@@ -150,11 +173,33 @@ export function InventoryPage() {
                 className="w-full rounded-xl border border-border bg-[color:var(--surface)] py-3 pl-10 pr-4 text-sm text-foreground placeholder:text-muted-foreground focus:border-accent focus:outline-none"
               />
             </div>
+            {/* Mobile filter toggle button (hamburger/slider style) - visible only on mobile when scrolled */}
+            <button
+              onClick={() => setIsMobileFiltersOpen(true)}
+              className={cn(
+                "relative flex md:hidden items-center justify-center h-[46px] w-[46px] rounded-xl border border-border bg-[color:var(--surface)] text-foreground transition-all duration-300 active:scale-95",
+                scrolled
+                  ? "opacity-100 scale-100 ml-2"
+                  : "opacity-0 scale-90 pointer-events-none w-0 border-none p-0 ml-0 overflow-hidden"
+              )}
+              aria-label="Open filter menu"
+            >
+              <SlidersHorizontal className="h-5 w-5 text-accent" />
+              {activeFiltersCount > 0 && (
+                <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-accent text-[9px] font-bold text-accent-foreground shadow-sm">
+                  {activeFiltersCount}
+                </span>
+              )}
+            </button>
             <div className="hidden md:flex items-center gap-2 rounded-xl border border-border bg-[color:var(--surface)] px-3.5 py-3 text-xs uppercase tracking-[0.2em] text-muted-foreground">
               <SlidersHorizontal className="h-4 w-4 text-accent" /> Filters
             </div>
           </div>
-          <div className="mt-4 grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-6">
+          {/* Collapse/hide this filter grid on mobile when scrolled */}
+          <div className={cn(
+            "mt-4 grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-6 transition-all duration-300",
+            scrolled ? "hidden md:grid" : "grid"
+          )}>
             <Select label="Brand" value={filters.brand} options={brands} onChange={update("brand")} />
             <Select label="Budget" value={filters.budget} options={budgets} onChange={update("budget")} />
             <Select label="Fuel" value={filters.fuel} options={fuels} onChange={update("fuel")} />
@@ -223,6 +268,82 @@ export function InventoryPage() {
           </>
         )}
       </section>
+
+      <AnimatePresence>
+        {isMobileFiltersOpen && (
+          <>
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsMobileFiltersOpen(false)}
+              className="fixed inset-0 z-[60] bg-background/80 backdrop-blur-sm md:hidden"
+            />
+            {/* Drawer */}
+            <motion.div
+              initial={{ y: "100%" }}
+              animate={{ y: 0 }}
+              exit={{ y: "100%" }}
+              transition={{ type: "spring", damping: 25, stiffness: 250 }}
+              className="fixed bottom-0 left-0 right-0 z-[70] flex max-h-[85vh] flex-col rounded-t-[2rem] border-t border-border bg-card p-6 shadow-2xl md:hidden"
+            >
+              {/* Drag Handle Indicator */}
+              <div className="mx-auto mb-5 h-1.5 w-12 rounded-full bg-muted-foreground/20" />
+
+              {/* Header */}
+              <div className="mb-6 flex items-center justify-between">
+                <div>
+                  <h2 className="text-xl font-bold tracking-tight text-foreground flex items-center gap-2">
+                    Filters
+                    {activeFiltersCount > 0 && (
+                      <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-accent/10 px-1.5 text-xs font-semibold text-accent">
+                        {activeFiltersCount}
+                      </span>
+                    )}
+                  </h2>
+                  <p className="text-xs text-muted-foreground mt-0.5">Refine vehicle selection</p>
+                </div>
+                <button
+                  onClick={() => setIsMobileFiltersOpen(false)}
+                  className="rounded-full bg-[color:var(--surface)] p-2 text-muted-foreground hover:text-foreground transition-colors"
+                  aria-label="Close filters"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+
+              {/* Scrollable Filters Content */}
+              <div className="flex-1 overflow-y-auto pb-6 space-y-5 pr-1">
+                <Select label="Brand" value={filters.brand} options={brands} onChange={update("brand")} />
+                <Select label="Budget" value={filters.budget} options={budgets} onChange={update("budget")} />
+                <Select label="Fuel" value={filters.fuel} options={fuels} onChange={update("fuel")} />
+                <Select label="Transmission" value={filters.transmission} options={transmissions} onChange={update("transmission")} />
+                <Select label="Year" value={filters.year} options={years} onChange={update("year")} />
+                <Select label="Sort By" value={filters.sort} options={sorts} onChange={update("sort")} />
+              </div>
+
+              {/* Footer Actions */}
+              <div className="border-t border-border pt-4 mt-auto flex items-center gap-3">
+                {activeFiltersCount > 0 && (
+                  <button
+                    onClick={reset}
+                    className="flex-1 rounded-xl border border-border bg-[color:var(--surface)] py-3 text-sm font-semibold text-foreground transition active:scale-95"
+                  >
+                    Reset All
+                  </button>
+                )}
+                <button
+                  onClick={() => setIsMobileFiltersOpen(false)}
+                  className="flex-[2] rounded-xl bg-accent py-3 text-sm font-semibold text-accent-foreground shadow-glow hover:opacity-90 transition active:scale-95"
+                >
+                  Show {filtered.length} {filtered.length === 1 ? "Car" : "Cars"}
+                </button>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </Layout>
   );
 }
